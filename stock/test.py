@@ -5,6 +5,9 @@ from alpaca.data.timeframe import TimeFrame
 from datetime import datetime  # Importing datetime module
 import requests
 import pandas as pd
+from dotenv import load_dotenv  
+
+load_dotenv()
 
 # No keys required for crypto data
 client = CryptoHistoricalDataClient()
@@ -40,5 +43,5 @@ response = requests.get(url, headers=headers)
 print(response.text)
 
 # Convert the response as DataFrame
-df = pd.DataFrame(response.json()['bars'])
+#df = pd.DataFrame(response.json()['bars'])
 # print(df.head(2))
