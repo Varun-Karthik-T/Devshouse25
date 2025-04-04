@@ -10,6 +10,7 @@ charset-normalizer==3.4.1
 deprecation==2.1.0
 frozenlist==1.5.0
 idna==3.10
+joblib==1.4.2
 msgpack==1.0.3
 multidict==6.3.2
 numpy==2.2.4
@@ -23,12 +24,16 @@ python-dotenv==1.1.0
 pytz==2025.2
 PyYAML==6.0.1
 requests==2.32.3
+scikit-learn==1.6.1
+scipy==1.15.2
 six==1.17.0
 sseclient-py==1.8.0
+threadpoolctl==3.6.0
 typing-inspection==0.4.0
 typing_extensions==4.13.1
 tzdata==2025.2
 urllib3==1.26.20
 websocket-client==1.8.0
 websockets==10.4
+xgboost==3.0.0
 yarl==1.18.3
