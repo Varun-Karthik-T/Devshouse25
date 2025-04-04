@@ -2,7 +2,8 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { Platform } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import Foundation from 'react-native-vector-icons/Foundation'; // Import Foundation icons
+import Foundation from 'react-native-vector-icons/Foundation'; 
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { HapticTab } from '@/components/HapticTab';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
@@ -30,7 +31,7 @@ export default function TabLayout() {
         options={{
           title: 'Goal',
           tabBarIcon: ({ color }) => (
-            <Foundation name="target" size={28} color={color} /> // Use Foundation's target icon
+            <Foundation name="target" size={28} color={color} />
           ),
         }}
       />
@@ -39,7 +40,16 @@ export default function TabLayout() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ color }) => (
-            <Ionicons name="settings" size={28} color={color} /> // Use Ionicons for Settings
+            <Ionicons name="settings" size={28} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="analyze"
+        options={{
+          title: 'Analyze',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="analytics" size={28} color={color} />
           ),
         }}
       />
