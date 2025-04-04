@@ -5,17 +5,10 @@ export const dummy = [
     week_id: 1,
     weekStart: "2025-03-24T00:00:00.000Z",
     weekEnd: "2025-03-30T23:59:59.000Z",
-
-    totalSpent: 8750,
-
-    topExpenses: [
-      { category: "Dining", amount: 2400 },
-      { category: "Shopping", amount: 2000 },
-      { category: "Groceries", amount: 1600 },
-    ],
-
-    roundUpAmount: 320,
+    totalRoundUp: 320,
     totalSavings: 20000,
+    totalSpent: 8750,
+    totalInvestments: 7000,
 
     goals: [
       {
@@ -31,8 +24,6 @@ export const dummy = [
         status: "behind",
       },
     ],
-
-    totalInvestments: 7000,
     investments: [
       { type: "stocks", amount: 5000 },
       { type: "gold", amount: 2000 },
