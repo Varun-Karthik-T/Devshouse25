@@ -1,20 +1,10 @@
-// filepath: d:\DevHouse\DevsHouse25\client\app\(tabs)\settings.tsx
-import { StyleSheet } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { Box } from '@/components/ui/box';
+import { Text } from '@/components/ui/text';
 
 export default function SettingsScreen() {
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title">Settings Screen</ThemedText>
-    </ThemedView>
+    <Box className="flex-1 items-center justify-center bg-background">
+    <Text className="text-primary flex text-lg font-semibold">This is the Box</Text>
+    </Box>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
