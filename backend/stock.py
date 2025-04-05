@@ -60,7 +60,7 @@ def predict_for_company(symbol, future_days=[30, 60, 90, 180, 365]):
     df = fetch_stock_data(symbol, start_date, end_date)
 
     if df.empty or len(df) < 30:
-        return {day: None for day in future_days}  # Not enough data
+        return {day: None for day in future_days}  
 
     df = df.rename(columns={
         't': 'timestamp',
@@ -153,3 +153,19 @@ def predict_multiple_stocks(symbols):
     return all_predictions
 
 
+def fetch_current_stock_values(symbols):
+    base_url = "https://data.alpaca.markets/v2/stocks/bars/latest"
+    headers = {
+        "accept": "application/json",
+        "APCA-API-KEY-ID": os.getenv("APCA_API_KEY_ID"),
+        "APCA-API-SECRET-KEY": os.getenv("APCA_API_SECRET_KEY")
+    }
+    params = {"symbols": ",".join(symbols)}
+    response = requests.get(base_url, headers=headers, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        return {symbol: data["bars"][symbol]["c"] for symbol in symbols if symbol in data["bars"]}
+    else:
+        print(f"Error fetching current stock values: {response.text}")
+        return {symbol: None for symbol in symbols}
