@@ -16,11 +16,12 @@ interface DropdownProps {
   options: { label: string; value: string }[];
   placeholder: string;
   onValueChange: (value: string) => void;
+  className?: string;
 }
 
-const Dropdown = ({ options, placeholder, onValueChange }: DropdownProps) => {
+const Dropdown = ({ options, placeholder, onValueChange, className }: DropdownProps) => {
   return (
-    <Select onValueChange={onValueChange}>
+    <Select onValueChange={onValueChange} className={className}>
       <SelectTrigger variant="outline" size="md">
         <SelectInput placeholder={placeholder} />
         <SelectIcon className="mr-3" as={ChevronDownIcon} />
