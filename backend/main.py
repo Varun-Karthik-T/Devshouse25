@@ -7,7 +7,8 @@ from goals import router as goals_router
 from fastapi.middleware.cors import CORSMiddleware
 from chatbot import chat_prompt, classification_prompt
 from services import *
-from transactions import router as transactions_router  
+from transactions import router as transactions_router 
+from invest import place_order 
 
 app = FastAPI()
 
@@ -157,3 +158,21 @@ async def get_all_user_reports(userId: str):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching all reports: {e}")
+
+
+@app.post("/invest")
+async def invest(label: str):
+    """
+    Endpoint to place an order for a stock.
+    """
+    try:
+        response = place_order(  
+            symbol=label
+        )
+        return {"response": response}
+    except HTTPException as e:
+        print(f"HTTP Exception: {e.detail}")
+        raise e
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Error placing order: {e}")

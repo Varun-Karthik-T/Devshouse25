@@ -33,7 +33,6 @@ export default function GoalScreen() {
       };
 
       console.log("New Goal Data:", newGoal); // Log the goal data
-      console.log("Backend URL: http://192.168.134.213:8000/api/goals"); // Corrected backend URL
 
       try {
         // Send the goal to the backend

@@ -7,6 +7,20 @@ import { getPrediction } from "@/api";
 import { useEffect, useState } from "react";
 import { ScrollView, Dimensions } from "react-native";
 import { LineChart } from "react-native-chart-kit";
+import {
+  Select,
+  SelectTrigger,
+  SelectInput,
+  SelectIcon,
+  SelectPortal,
+  SelectBackdrop,
+  SelectContent,
+  SelectDragIndicator,
+  SelectDragIndicatorWrapper,
+  SelectItem,
+} from "@/components/ui/select";
+import { ChevronDownIcon } from "@/components/ui/icon";
+import {api} from "@/api/index"
 
 export default function InvestScreen() {
   const [data, setData] = useState<Record<
@@ -16,6 +30,24 @@ export default function InvestScreen() {
   const [selectedCategory, setSelectedCategory] = useState<
     "stocks" | "gold" | "fd"
   >("stocks");
+
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const handleInvest = async () => {
+    if (!selectedOption) {
+      alert("Please select an option before investing.");
+      return;
+    }
+  
+    try {
+      const response = await api.post(`/invest`, null, {
+        params: { label: selectedOption },
+      });
+      alert(`Success! Investment response: ${JSON.stringify(response.data)}`);
+    } catch (error) {
+      console.error("Failed to invest:", error);
+      alert(`Failed to invest: ${error}`);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,43 +71,41 @@ export default function InvestScreen() {
 
   return (
     <ScrollView>
-      <HStack space="lg" className="mt-20 justify-center">
+      <HStack space="lg" className="mt-20 justify-center ">
         <Box className="bg-accent p-5 py-10 w-fit rounded-xl items-center">
-          <Text className="text-white text-4xl">12.1K</Text>
-          <Text className="text-white">Invested</Text>
+          <Text className="text-white text-5xl font-bold">12.1K</Text>
+          <Text className="text-white font-extrabold">Invested</Text>
         </Box>
         <Box className="bg-accent p-5 py-10 w-fit rounded-xl items-center">
-          <Text className="text-white text-5xl">7%</Text>
-          <Text className="text-white">Profit</Text>
+          <Text className="text-white text-5xl font-bold">7%</Text>
+          <Text className="text-white font-extrabold">Profit</Text>
         </Box>
       </HStack>
       <Box className="mt-10 px-4">
         <Text className="text-primary text-center mb-2 font-semibold">
           Savings Over Time
         </Text>
-       
-          <LineChart
-            data={{
-              labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-              datasets: [{ data: [200, 250, 350, 420, 490, 532] }],
-            }}
-            width={Dimensions.get("window").width - 30}
-            height={220}
-            yAxisLabel="₹"
-            chartConfig={{
-              backgroundColor: '#04080b',
-              backgroundGradientFrom: "#04080b",
-              backgroundGradientTo: "#04080b",
-              decimalPlaces: 0,
-              color: (opacity = 1) => `white`,
-              labelColor: () => "#37a0f6",
-            }}
-            style={{ borderRadius: 11 }}
-            
-          />
-       
+
+        <LineChart
+          data={{
+            labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+            datasets: [{ data: [200, 250, 350, 420, 490, 532] }],
+          }}
+          width={Dimensions.get("window").width - 30}
+          height={220}
+          yAxisLabel="₹"
+          chartConfig={{
+            backgroundColor: "#04080b",
+            backgroundGradientFrom: "#04080b",
+            backgroundGradientTo: "#04080b",
+            decimalPlaces: 0,
+            color: (opacity = 1) => `white`,
+            labelColor: () => "#37a0f6",
+          }}
+          style={{ borderRadius: 11 }}
+        />
       </Box>
- 
+
       <Box className="mt-6 px-4 items-center">
         {/* Table Header */}
         <Text className="text-accent flex-1 ">Your Investments</Text>
@@ -153,7 +183,7 @@ export default function InvestScreen() {
         </VStack>
 
         {/* Conditional Content */}
-        <Box className="mt-6">
+        <Box className="mt-6 pb-24">
           {selectedCategory === "stocks" && data ? (
             <>
               <HStack space="sm" className="overflow-x-auto">
@@ -220,6 +250,34 @@ export default function InvestScreen() {
               <Text className="text-center text-primary text-sm">
                 Note: Predictions are AI-generated and are not financial advice.
               </Text>
+
+              <Select onValueChange={(value) => setSelectedOption(value)} className="text-primary border-2 border-primary mt-4 rounded-full px-4 max-w-fit">
+                <SelectTrigger variant="outline" size="md" className="text-primary">
+                  <SelectInput placeholder="Select an option" className="text-primary"  />
+                  <SelectIcon className="mr-3" as={ChevronDownIcon} />
+                </SelectTrigger>
+                <SelectPortal>
+                  <SelectBackdrop />
+                  <SelectContent>
+                    <SelectDragIndicatorWrapper>
+                      <SelectDragIndicator  />
+                    </SelectDragIndicatorWrapper>
+                    <SelectItem label="AAPL" value="AAPL" className="text-primary"/>
+                    <SelectItem label="GOOGL" value="GOOGL" />
+                    <SelectItem label="MSFT" value="MSFT" />
+                    <SelectItem label="TSLA" value="TSLA" />
+                    <SelectItem label="NVDA" value="NVDA" />
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
+
+              {/* Button */}
+              <Button
+                onPress={handleInvest}
+                className="border-2 border-accent mt-4 rounded-full px-4 max-w-fit bg-accent"
+              >
+                <ButtonText className="text-black">Invest now</ButtonText>
+              </Button>
             </>
           ) : selectedCategory === "gold" ? (
             <Text className="text-primary text-center text-md">
