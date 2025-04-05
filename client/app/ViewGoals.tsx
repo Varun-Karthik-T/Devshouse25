@@ -9,7 +9,7 @@ import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-
+import {api} from "@/api"; // Import the api instance from your api file
 
 const ViewGoals = () => {
   const [walletAmount] = useState(10000); // Hardcoded wallet balance
@@ -23,7 +23,7 @@ const ViewGoals = () => {
   useEffect(() => {
     const fetchGoalsFromDB = async () => {
       try {
-        const response = await axios.get("http://192.168.134.213:8000/api/goals/user123");
+        const response = await api.get("/api/goals/user123");
         const fetchedGoals = response.data.goals.map((goal: any) => ({
           goal_id: goal.goal_id,
           targetName: goal.goal_name,
@@ -171,7 +171,7 @@ const ViewGoals = () => {
 
   const updateSavingsInBackend = async (goalId: string, savings: number) => {
     try {
-      const response = await axios.patch("http://192.168.134.213:8000/api/goals/update-savings", {
+      const response = await api.patch("api/goals/update-savings", {
         goal_id: goalId,
         savings: savings,
       });
@@ -203,7 +203,7 @@ const ViewGoals = () => {
   const removeGoal = async (goalId: string, goalName: string) => {
   try {
     // Call the backend to delete the goal
-    await axios.delete(`http://192.168.134.213:8000/api/goals/${goalId}`);
+    await api.delete(`/api/goals/${goalId}`);
 
     // Remove the goal from the local state
     const updatedGoals = goals.filter((goal) => goal.goal_id !== goalId);
