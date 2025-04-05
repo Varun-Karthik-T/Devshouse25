@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const api = axios.create({
-    baseURL: 'http://192.168.51.65:8000/', // Added 'http://' to the baseURL
+    baseURL: 'http://192.168.89.196:8000/',
     headers: {
         'Content-Type': 'application/json',
     },
@@ -14,7 +14,7 @@ const getPrediction = async () => {
         return response.data;
         
     } catch (error) {
-        console.error('Error fetching prediction:', error); // Added error handling
+        console.error('Error fetching prediction:', error);
     }
 };
 

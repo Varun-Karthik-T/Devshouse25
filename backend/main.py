@@ -80,18 +80,24 @@ async def get_predictions():
 @app.post("/chat/{userId}")
 async def chat_with_bot(userId: str, request: ChatRequest):
     try:
-        # Await the chat_prompt function
+        print(f"Request Body: {request.model_dump_json()}") 
         response = await chat_prompt(request.user_prompt, userId)
+        print(f"Response: {response}")
         return {"response": response}
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=f"Chatbot error: {e}")
 
 @app.get("/reports/latest/{userId}")
 async def get_latest_report(userId: str):
     try:
+        print(f"User ID: {userId}")
         latest_report = await get_latest_month_report(userId)
+        print(f"Latest Report: {latest_report}")
         return {"latest_report": latest_report}
     except HTTPException as e:
+        print(f"HTTP Exception: {e.detail}")
         raise e
     except Exception as e:
+        print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=f"Error fetching latest report: {e}")

@@ -5,7 +5,7 @@ import json
 async def chat_prompt(user_prompt, userId):
     system_instruction = """
     You are a financial chatbot that can perform function calls to retrieve data. Please return your output strictly as a JSON object with an array named "function_calls". Each function call should be an object with two keys: "function" (the function name) and "parameters" (an object containing the parameters and their values).
-    You have access to the following functions:
+    You have access to the following functions, use them only if they are necessary to answer the prompt. If not then try not to use it and just answer the user query directly:
     1) get_latest_month_report(user_id: str)
     - Description: Returns the latest report for the given user_id.
     """

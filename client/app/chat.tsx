@@ -12,22 +12,36 @@ import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { SendHorizontal } from "lucide-react-native";
+import { api } from "@/api";
+
 const Chat = () => {
   const [messages, setMessages] = useState<
     { text: string; sender: "user" | "bot" }[]
   >([]);
   const [input, setInput] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim()) {
       setMessages([...messages, { text: input, sender: "user" }]);
+      const userMessage = input;
       setInput("");
-      setTimeout(() => {
+      try {
+        const requestBody = { user_prompt: userMessage }; // Updated field name
+        console.log("Request Body:", requestBody); // Debugging: Print the request body
+        const response = await api.post(
+          "/chat/user123",
+          requestBody,
+          { headers: { "Content-Type": "application/json" } } // Explicitly set Content-Type
+        );
+        const botResponse = response.data?.response || "No response from bot.";
+        setMessages((prev) => [...prev, { text: botResponse, sender: "bot" }]);
+      } catch (error) {
+        console.error("Error sending message:", error);
         setMessages((prev) => [
           ...prev,
-          { text: "This is a bot response.", sender: "bot" },
+          { text: "Failed to get a response from the bot.", sender: "bot" },
         ]);
-      }, 1000);
+      }
     }
   };
 
