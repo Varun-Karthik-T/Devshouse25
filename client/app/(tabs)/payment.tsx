@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Keyboard, Alert, Modal } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
-import { useFocusEffect } from "@react-navigation/native";
 
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
@@ -10,17 +9,17 @@ import { Text } from "@/components/ui/text";
 import { Center } from "@/components/ui/center";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Menu, MenuItem, MenuItemLabel } from "@/components/ui/menu";
-import { Icon, GlobeIcon, PlayIcon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
-
+import { History } from 'lucide-react-native';
+import { CalendarDays } from "lucide-react-native";
 import { dummy } from "@/constants/dummyData";
 
 export default function PaymentScreen() {
   const [amountValue, setAmountValue] = useState("");
   const [commentValue, setCommentValue] = useState("");
   const [paymentType, setPaymentType] = useState("");
-  const [upiId, setUpiId] = useState(""); // UPI ID from QR code
+  const [upiId, setUpiId] = useState(""); 
   const [scannerVisible, setScannerVisible] = useState(false);
   const [permission, setPermission] = useState<null | boolean>(null);
   const router = useRouter();
@@ -35,15 +34,8 @@ export default function PaymentScreen() {
     })();
   }, []);
 
-  // Automatically open the scanner when the Payment tab is focused
-  useFocusEffect(
-    React.useCallback(() => {
-      setScannerVisible(true); // Open scanner when the screen is focused
-    }, [])
-  );
-
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    setUpiId(data); // Autofill the UPI ID field
+    setUpiId(data); 
     setScannerVisible(false);
     Alert.alert("Paying to", `UPI ID: ${data}`);
   };
@@ -65,7 +57,7 @@ export default function PaymentScreen() {
       date: new Date().toISOString(),
       category: paymentType,
       amount: enteredAmount,
-      upiId: upiId || "N/A", // Include the scanned UPI ID
+      upiId: upiId || "N/A", 
       notes: commentValue || "",
     };
 
@@ -88,42 +80,20 @@ export default function PaymentScreen() {
   return (
     <Box className="flex-1 bg-background p-6">
       <Card className="flex-1 p-4 rounded-lg shadow-lg bg-background relative">
-        {/* Top Menu */}
+       
         <Box className="absolute top-8 right-4">
-          <Menu
-            placement="bottom"
-            offset={5}
-            trigger={({ ...triggerProps }) => (
-              <Button {...triggerProps} className="bg-primary">
-                <ButtonText className="text-background">Menu</ButtonText>
-              </Button>
-            )}
+          <Button
+            onPress={() => router.push("/transactions")}
+            className="bg-transparent"
           >
-            <MenuItem
-              key="Transactions"
-              textValue="Transactions"
-              onPress={() => router.push("/transactions")}
-            >
-              <Icon as={GlobeIcon} size="sm" className="mr-2 text-primary" />
-              <MenuItemLabel size="sm" className="text-primary">
-                Transactions
-              </MenuItemLabel>
-            </MenuItem>
-            <MenuItem key="Plugins" textValue="Plugins">
-              <Icon as={PlayIcon} size="sm" className="mr-2 text-primary" />
-              <MenuItemLabel size="sm" className="text-primary">
-                Plugins
-              </MenuItemLabel>
-            </MenuItem>
-          </Menu>
+           <History color="#9BA1A6" size={26} />
+          </Button>
         </Box>
 
-        {/* Payment Form */}
         <Center className="flex-1">
           <VStack space="xl" className="items-center w-4/5">
             <Text className="text-primary text-2xl font-bold">Make Payment</Text>
 
-            {/* Payment Type */}
             <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
                 placeholder="Enter Payment Type"
@@ -133,7 +103,6 @@ export default function PaymentScreen() {
               />
             </Input>
 
-            {/* Amount */}
             <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
                 placeholder="Enter Amount"
@@ -144,7 +113,6 @@ export default function PaymentScreen() {
               />
             </Input>
 
-            {/* Comments */}
             <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
                 placeholder="Add Comments "
@@ -154,7 +122,6 @@ export default function PaymentScreen() {
               />
             </Input>
 
-            {/* UPI ID */}
             <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
                 placeholder="Enter or Scan UPI ID"
@@ -164,7 +131,6 @@ export default function PaymentScreen() {
               />
             </Input>
 
-            {/* Scan QR Button */}
             <Button
               onPress={() => setScannerVisible(true)}
               className="bg-secondary w-full rounded-lg"
@@ -185,7 +151,6 @@ export default function PaymentScreen() {
         </Center>
       </Card>
 
-      {/* QR Scanner Modal */}
       <Modal visible={scannerVisible} animationType="slide">
         <Box className="flex-1 items-center justify-center bg-black">
           <BarCodeScanner
