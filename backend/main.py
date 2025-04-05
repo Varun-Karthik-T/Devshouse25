@@ -94,9 +94,7 @@ async def get_predictions():
 @app.post("/chat/{userId}")
 async def chat_with_bot(userId: str, request: ChatRequest):
     try:
-        print(f"Request Body: {request.model_dump_json()}") 
         response = await chat_prompt(request.user_prompt, userId)
-        print(f"Response: {response}")
         return {"response": response}
     except Exception as e:
         print(f"Error: {e}")
@@ -105,9 +103,7 @@ async def chat_with_bot(userId: str, request: ChatRequest):
 @app.get("/reports/latest/{userId}")
 async def get_latest_report(userId: str):
     try:
-        print(f"User ID: {userId}")
         latest_report = await get_latest_month_report(userId)
-        print(f"Latest Report: {latest_report}")
         return {"latest_report": latest_report}
     except HTTPException as e:
         print(f"HTTP Exception: {e.detail}")
@@ -122,9 +118,7 @@ async def get_report(userId: str, year: int, month: int):
     Endpoint to fetch a specific report for a user by year and month.
     """
     try:
-        print(f"User ID: {userId}, Year: {year}, Month: {month}")
         report = await get_report_by_month_and_year(userId, year, month)
-        print(f"Report: {report}")
         return {"report": report}
     except HTTPException as e:
         print(f"HTTP Exception: {e.detail}")
@@ -139,9 +133,7 @@ async def get_all_user_reports(userId: str):
     Endpoint to fetch all reports for a user.
     """
     try:
-        print(f"User ID: {userId}")
         reports = await get_all_reports(userId)
-        print(f"All Reports: {reports}")
         return {"reports": reports}
     except HTTPException as e:
         print(f"HTTP Exception: {e.detail}")

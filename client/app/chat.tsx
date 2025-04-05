@@ -7,17 +7,23 @@ import {
   Text,
   Pressable,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { SendHorizontal } from "lucide-react-native";
 import { api } from "@/api";
+import Markdown from "react-native-markdown-display";
 
 const Chat = () => {
   const [messages, setMessages] = useState<
     { text: string; sender: "user" | "bot" }[]
-  >([]);
+  >([
+    {
+      text: "Hi, I am Pixie, your financial assistant. You can ask me about anything related to your savings, investment plans, and stuff.",
+      sender: "bot",
+    },
+  ]);
   const [input, setInput] = useState("");
 
   const handleSend = async () => {
@@ -26,12 +32,11 @@ const Chat = () => {
       const userMessage = input;
       setInput("");
       try {
-        const requestBody = { user_prompt: userMessage }; // Updated field name
-        console.log("Request Body:", requestBody); // Debugging: Print the request body
+        const requestBody = { user_prompt: userMessage };
         const response = await api.post(
           "/chat/user123",
           requestBody,
-          { headers: { "Content-Type": "application/json" } } // Explicitly set Content-Type
+          { headers: { "Content-Type": "application/json" } }
         );
         const botResponse = response.data?.response || "No response from bot.";
         setMessages((prev) => [...prev, { text: botResponse, sender: "bot" }]);
@@ -64,13 +69,19 @@ const Chat = () => {
                   message.sender === "user" ? "bg-secondary" : "bg-primary"
                 }`}
               >
-                <Text
-                  className={`${
-                    message.sender === "user" ? "text-white" : "text-black"
-                  }`}
-                >
-                  {message.text}
-                </Text>
+                {message.sender === "bot" ? (
+                  <Markdown
+                    style={{
+                      body: {
+                        color: "black",
+                      },
+                    }}
+                  >
+                    {message.text}
+                  </Markdown>
+                ) : (
+                  <Text className="text-white">{message.text}</Text>
+                )}
               </Box>
             </HStack>
           ))}
