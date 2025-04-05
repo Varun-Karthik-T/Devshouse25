@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Keyboard, Alert, Modal } from "react-native";
+import { BarCodeScanner } from "expo-barcode-scanner";
+import { useRouter } from "expo-router";
+
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
@@ -8,15 +12,37 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Menu, MenuItem, MenuItemLabel } from "@/components/ui/menu";
 import { Icon, GlobeIcon, PlayIcon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
-import { Keyboard, Alert } from "react-native";
+
 import { dummy } from "@/constants/dummyData";
-import { useRouter } from "expo-router";
 
 export default function PaymentScreen() {
   const [amountValue, setAmountValue] = useState("");
   const [commentValue, setCommentValue] = useState("");
   const [paymentType, setPaymentType] = useState("");
+  const [upiId, setUpiId] = useState(""); // UPI ID from QR code
+  const [scannerVisible, setScannerVisible] = useState(false);
+  const [permission, setPermission] = useState<null | boolean>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      setPermission(status === "granted");
+    })();
+  }, []);
+
+  const handleBarCodeScanned = ({ data }: { data: string }) => {
+    setUpiId(data); // Autofill the UPI ID field
+    setScannerVisible(false);
+    Alert.alert(
+      "Paying to",
+      `UPI ID: ${data}`,
+      [
+        { text: "Cancel", onPress: () => console.log("Cancelled"), style: "cancel" },
+        { text: "OK", onPress: () => console.log("Confirmed") },
+      ]
+    );
+  };
 
   const handlePayment = () => {
     Keyboard.dismiss();
@@ -27,10 +53,9 @@ export default function PaymentScreen() {
     }
 
     const enteredAmount = parseFloat(amountValue);
-    const roundedAmount = Math.ceil(enteredAmount / 10) * 10; // Round up to the nearest 10
+    const roundedAmount = Math.ceil(enteredAmount / 10) * 10;
     const roundUpValue = roundedAmount - enteredAmount;
 
-    // Add the transaction to the dummy data
     const newTransaction = {
       transactionId: `txn${dummy[0].transactions.length + 1}`,
       date: new Date().toISOString(),
@@ -40,41 +65,34 @@ export default function PaymentScreen() {
     };
 
     dummy[0].transactions.push(newTransaction);
-
-    // Update totalRoundUp, totalSavings, and balance
     dummy[0].totalRoundUp += roundUpValue;
     dummy[0].totalSavings += roundUpValue;
     dummy[0].balance -= roundedAmount;
 
-    console.log("Payment submitted:", { paymentType, enteredAmount, roundUpValue });
-    console.log("Updated Dummy Data:", dummy[0]);
-
-    // Reset the form
     setPaymentType("");
     setAmountValue("");
     setCommentValue("");
+    setUpiId("");
 
-    // Notify the user about the round-up process
     Alert.alert(
       "Payment Successful",
-      `You have paid ₹${enteredAmount}.  ₹${roundUpValue} has been added to your savings!! .`
+      `Paid ₹${enteredAmount}\n₹${roundUpValue} saved!\nUPI: ${upiId || "N/A"}`
     );
   };
 
   return (
     <Box className="flex-1 bg-background p-6">
       <Card className="flex-1 p-4 rounded-lg shadow-lg bg-background relative">
+        {/* Top Menu */}
         <Box className="absolute top-8 right-4">
           <Menu
             placement="bottom"
             offset={5}
-            trigger={({ ...triggerProps }) => {
-              return (
-                <Button {...triggerProps} className="bg-primary">
-                  <ButtonText className="text-background">Menu</ButtonText>
-                </Button>
-              );
-            }}
+            trigger={({ ...triggerProps }) => (
+              <Button {...triggerProps} className="bg-primary">
+                <ButtonText className="text-background">Menu</ButtonText>
+              </Button>
+            )}
           >
             <MenuItem
               key="Transactions"
@@ -86,7 +104,7 @@ export default function PaymentScreen() {
                 Transactions
               </MenuItemLabel>
             </MenuItem>
-            <MenuItem key="Account" textValue="Plugins">
+            <MenuItem key="Plugins" textValue="Plugins">
               <Icon as={PlayIcon} size="sm" className="mr-2 text-primary" />
               <MenuItemLabel size="sm" className="text-primary">
                 Plugins
@@ -99,37 +117,56 @@ export default function PaymentScreen() {
         <Center className="flex-1">
           <VStack space="xl" className="items-center w-4/5">
             <Text className="text-primary text-2xl font-bold">Make Payment</Text>
-            <Input variant="outline" size="lg" className="w-full border border-accent rounded-lg">
+
+            {/* Payment Type */}
+            <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
-                placeholder="Payment Type"
+                placeholder="Enter Payment Type"
                 value={paymentType}
-                onChangeText={(text) => setPaymentType(text)}
-                className={`placeholder:text-gray-400 ${
-                  paymentType ? "text-primary" : "text-gray-800"
-                }`}
+                onChangeText={setPaymentType}
+                className="placeholder:text-gray-400 text-white"
               />
             </Input>
-            <Input variant="outline" size="lg" className="w-full border border-accent rounded-lg">
+
+            {/* Amount */}
+            <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
-                placeholder="Amount"
+                placeholder="Enter Amount"
                 keyboardType="numeric"
                 value={amountValue}
-                onChangeText={(text) => setAmountValue(text)}
-                className={`placeholder:text-gray-400 ${
-                  amountValue ? "text-primary" : "text-gray-800"
-                }`}
+                onChangeText={setAmountValue}
+                className="placeholder:text-gray-400 text-white"
               />
             </Input>
-            <Input variant="outline" size="lg" className="w-full border border-accent rounded-lg">
+
+            {/* Comments */}
+            <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
               <InputField
-                placeholder="Comments"
+                placeholder="Add Comments "
                 value={commentValue}
-                onChangeText={(text) => setCommentValue(text)}
-                className={`placeholder:text-gray-400 ${
-                  commentValue ? "text-primary" : "text-gray-800"
-                }`}
+                onChangeText={setCommentValue}
+                className="placeholder:text-gray-400 text-white"
               />
             </Input>
+
+            {/* UPI ID */}
+            <Input variant="outline" size="lg" className="placeholder:text-gray-400 text-white w-full border border-accent rounded-lg">
+              <InputField
+                placeholder="Enter or Scan UPI ID"
+                value={upiId}
+                onChangeText={setUpiId}
+                className="placeholder:text-gray-400 text-white"
+              />
+            </Input>
+
+            {/* Scan QR Button */}
+            <Button
+              onPress={() => setScannerVisible(true)}
+              className="bg-secondary w-full rounded-lg"
+            >
+              <ButtonText className="text-background">Scan QR for UPI</ButtonText>
+            </Button>
+
             <Button
               size="lg"
               variant="solid"
@@ -142,6 +179,22 @@ export default function PaymentScreen() {
           </VStack>
         </Center>
       </Card>
+
+      {/* QR Scanner Modal */}
+      <Modal visible={scannerVisible} animationType="slide">
+        <Box className="flex-1 items-center justify-center bg-black">
+          <BarCodeScanner
+            onBarCodeScanned={handleBarCodeScanned}
+            style={{ height: "100%", width: "100%" }}
+          />
+          <Button
+            onPress={() => setScannerVisible(false)}
+            className="absolute bottom-8 bg-primary px-6 py-3 rounded-lg"
+          >
+            <ButtonText className="text-background text-md">Cancel</ButtonText>
+          </Button>
+        </Box>
+      </Modal>
     </Box>
   );
 }
