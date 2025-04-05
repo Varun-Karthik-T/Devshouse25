@@ -152,8 +152,4 @@ def predict_multiple_stocks(symbols):
         all_predictions[symbol] = predict_for_company(symbol)
     return all_predictions
 
-symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA"]
-predictions = predict_multiple_stocks(symbols)
 
-import json
-print(json.dumps(predictions, indent=2))

@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { Text } from "@/components/ui/text";
@@ -7,44 +8,57 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Menu, MenuItem, MenuItemLabel } from "@/components/ui/menu";
 import { Icon, GlobeIcon, PlayIcon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
-import React from "react";
-import { Keyboard } from "react-native"; 
+import { Keyboard, Alert } from "react-native";
 import { dummy } from "@/constants/dummyData";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
 
 export default function PaymentScreen() {
-  const [amountValue, setAmountValue] = React.useState("");
-  const [commentValue, setCommentValue] = React.useState("");
-  const [paymentType, setPaymentType] = React.useState("");
+  const [amountValue, setAmountValue] = useState("");
+  const [commentValue, setCommentValue] = useState("");
+  const [paymentType, setPaymentType] = useState("");
   const router = useRouter();
 
   const handlePayment = () => {
-    Keyboard.dismiss(); 
+    Keyboard.dismiss();
+
     if (!paymentType || !amountValue) {
-      console.error("Payment Type and Amount are required.");
-      alert("Please fill in both Payment Type and Amount.");
+      Alert.alert("Error", "Please fill in both Payment Type and Amount.");
       return;
     }
 
+    const enteredAmount = parseFloat(amountValue);
+    const roundedAmount = Math.ceil(enteredAmount / 10) * 10; // Round up to the nearest 10
+    const roundUpValue = roundedAmount - enteredAmount;
+
+    // Add the transaction to the dummy data
     const newTransaction = {
       transactionId: `txn${dummy[0].transactions.length + 1}`,
       date: new Date().toISOString(),
       category: paymentType,
-      amount: parseFloat(amountValue),
+      amount: enteredAmount,
       notes: commentValue || "",
     };
 
     dummy[0].transactions.push(newTransaction);
 
-    console.log("Payment submitted:", { paymentType, amountValue, commentValue });
-    console.log("Updated Transactions:", dummy[0].transactions);
+    // Update totalRoundUp, totalSavings, and balance
+    dummy[0].totalRoundUp += roundUpValue;
+    dummy[0].totalSavings += roundUpValue;
+    dummy[0].balance -= roundedAmount;
 
+    console.log("Payment submitted:", { paymentType, enteredAmount, roundUpValue });
+    console.log("Updated Dummy Data:", dummy[0]);
+
+    // Reset the form
     setPaymentType("");
     setAmountValue("");
     setCommentValue("");
 
-    Alert.alert("Payment Successful", "Your payment has been made successfully.");
+    // Notify the user about the round-up process
+    Alert.alert(
+      "Payment Successful",
+      `You have paid ₹${enteredAmount}.  ₹${roundUpValue} has been added to your savings!! .`
+    );
   };
 
   return (
