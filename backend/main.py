@@ -1,11 +1,16 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from datetime import datetime, timedelta
 from stock import predict_multiple_stocks
 from db import db, ping_database
+from chatbot import chat_prompt
 
 app = FastAPI()
 
 collection = db["stock_predictions"]
+
+class ChatRequest(BaseModel):
+    user_prompt: str
 
 @app.on_event("startup")
 async def startup_event():
@@ -58,3 +63,11 @@ async def get_predictions():
     all_predictions.update(new_predictions)
 
     return {"cached": False, "predictions": all_predictions}
+
+@app.post("/chat/{userId}")
+async def chat_with_bot(userId: str, request: ChatRequest):
+    try:
+        response = chat_prompt(request.user_prompt, userId)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chatbot error: {e}")
