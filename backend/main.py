@@ -2,8 +2,22 @@ from fastapi import FastAPI
 from datetime import datetime, timedelta
 from stock import predict_multiple_stocks
 from db import db, ping_database
+from goals import router as goals_router
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for testing; restrict in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include the goals router
+app.include_router(goals_router, prefix="/api", tags=["goals"])
 
 collection = db["stock_predictions"]
 
