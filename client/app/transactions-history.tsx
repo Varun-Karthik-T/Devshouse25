@@ -18,21 +18,32 @@ const TransactionsHistory = () => {
 
   return (
     <ScrollView className="p-4">
-      <Text className="text-primary"> Month ID: {month_id} </Text>
-      <Text bold size="2xl" className="text-primary mb-4">
-        Transactions for {monthNames[(selectedMonthData?.month ?? 1) - 1]} {selectedMonthData?.year ?? "Unknown Year"}
-      </Text>
       {selectedMonthData?.transactions.map((transaction) => (
         <Box
           key={transaction.transactionId}
-          className="bg-secondary p-4 rounded-lg mb-2"
+          className="bg-primary p-4 rounded-lg flex flex-col gap-2 mb-2"
         >
-          <Text bold className="text-primary">
-            {transaction.category}
+          <View className="flex flex-row justify-between items-center">
+            <Text
+              bold
+              size="lg"
+              className="text-black"
+              style={{ textTransform: "capitalize" }}
+            >
+              {transaction.category}
+            </Text>
+            <Text bold size="lg" className="text-black">
+              ₹{transaction.amount}
+            </Text>
+          </View>
+          <Text className="text-secondary text-sm">
+            {new Date(transaction.date).toLocaleDateString()}
           </Text>
-          <Text>Amount: ₹{transaction.amount}</Text>
-          <Text>Date: {new Date(transaction.date).toLocaleDateString()}</Text>
-          <Text>Notes: {transaction.notes}</Text>
+          {transaction.notes && (
+            <Text className="text-secondary text-sm italic">
+              "{transaction.notes}"
+            </Text>
+          )}
         </Box>
       ))}
     </ScrollView>

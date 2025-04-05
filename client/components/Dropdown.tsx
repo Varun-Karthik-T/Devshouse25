@@ -17,11 +17,16 @@ interface DropdownProps {
   placeholder: string;
   onValueChange: (value: string) => void;
   className?: string;
+  value?: string; // Added value prop
 }
 
-const Dropdown = ({ options, placeholder, onValueChange, className }: DropdownProps) => {
+const Dropdown = ({ options, placeholder, onValueChange, className, value }: DropdownProps) => {
   return (
-    <Select onValueChange={onValueChange} className={`${className}`}>
+    <Select
+      onValueChange={onValueChange}
+      className={`${className}`}
+      selectedValue={value} // Bind the value prop
+    >
       <SelectTrigger variant="outline" size="md" className="border-accent flex justify-between">
         <SelectInput placeholder={placeholder} className="placeholder:text-accent text-accent py-2" />
         <SelectIcon className="mr-3 text-accent" as={ChevronDownIcon} />
