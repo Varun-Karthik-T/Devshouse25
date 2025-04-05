@@ -40,19 +40,27 @@ async def get_month_summary():
         raise HTTPException(status_code=500, detail=f"Error fetching month summary: {str(e)}")
 
 
-async def get_latest_month_report():
+async def get_latest_month_report(user_id: str):
     """
-    Returns the report for the most recent month.
+    Returns the latest report for the given user_id.
     """
     try:
-        latest_month = await db.reports.find_one({}, sort=[("month_id", -1)])
-        if not latest_month:
-            raise HTTPException(status_code=404, detail="No reports found")
-        return latest_month
+        user_reports = await db.reports.find_one({"user_id": user_id})
+        if not user_reports or not user_reports.get("reports"):
+            raise HTTPException(status_code=404, detail="No reports found for the user")
+        
+        latest_report = max(
+            user_reports["reports"],
+            key=lambda report: (report["year"], report["month"])
+        )
+        
+        if "_id" in latest_report and isinstance(latest_report["_id"], ObjectId):
+            latest_report["_id"] = str(latest_report["_id"])
+        
+        return latest_report
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching latest month report: {str(e)}")
-
-
+    
 async def get_user_goals(user_id: str):
     """
     Fetch all goals for a specific user.
