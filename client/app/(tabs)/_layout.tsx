@@ -31,7 +31,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Goal',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color }: { color: string }) => (
             <Foundation name="target" size={28} color={color} />
           ),
         }}
@@ -40,7 +40,7 @@ export default function TabLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color }: { color: string }) => (
             <Ionicons name="settings" size={28} color={color} />
           ),
         }}
@@ -49,11 +49,22 @@ export default function TabLayout() {
         name="analyze"
         options={{
           title: 'Analyze',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color }: { color: string }) => (
             <Ionicons name="analytics" size={28} color={color} />
           ),
         }}
       />
+
+    <Tabs.Screen
+        name="payment"
+        options={{
+          title: 'Payment',
+          tabBarIcon: ({ color }: { color: string }) => (
+            <Ionicons name="cash-outline" size={28} color={color} />
+          ),
+        }}
+      />
     </Tabs>
+    
   );
 }
