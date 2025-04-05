@@ -8,6 +8,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Center } from "@/components/ui/center";
 import Axios from "axios";
+import { api } from "@/api";
 
 export default function GoalScreen() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function GoalScreen() {
 
       try {
         // Send the goal to the backend
-        const response = await Axios.post("http://192.168.134.213:8000/api/goals", newGoal); // Corrected backend URL
+        const response = await api.post("/api/goals", newGoal); // Corrected backend URL
         console.log("Goal added successfully:", response.data);
 
         // Show success alert
