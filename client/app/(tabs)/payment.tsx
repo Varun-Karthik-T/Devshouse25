@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Keyboard, Alert, Modal } from "react-native";
+import { Keyboard, Modal } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
 import { useFocusEffect } from "@react-navigation/native";
@@ -10,19 +10,19 @@ import { Text } from "@/components/ui/text";
 import { Center } from "@/components/ui/center";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
-import { History } from 'lucide-react-native';
-import { CalendarDays } from "lucide-react-native";
+import { History } from "lucide-react-native";
 import { dummy } from "@/constants/dummyData";
 
 export default function PaymentScreen() {
   const [amountValue, setAmountValue] = useState("");
   const [commentValue, setCommentValue] = useState("");
   const [paymentType, setPaymentType] = useState("");
-  const [upiId, setUpiId] = useState(""); 
+  const [upiId, setUpiId] = useState("");
   const [scannerVisible, setScannerVisible] = useState(false);
   const [permission, setPermission] = useState<null | boolean>(null);
+  const [showModal, setShowModal] = useState(false); // State for modal visibility
+  const [modalMessage, setModalMessage] = useState(""); // State for modal message
   const router = useRouter();
 
   useEffect(() => {
@@ -30,7 +30,8 @@ export default function PaymentScreen() {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setPermission(status === "granted");
       if (status !== "granted") {
-        Alert.alert("Permission Denied", "Camera permission is required to scan QR codes.");
+        setModalMessage("Camera permission is required to scan QR codes.");
+        setShowModal(true);
       }
     })();
   }, []);
@@ -42,27 +43,30 @@ export default function PaymentScreen() {
   );
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
-    setUpiId(data); 
+    setUpiId(data);
     setScannerVisible(false);
-    Alert.alert("Paying to", `UPI ID: ${data}`);
+    setModalMessage(`Paying to UPI ID: ${data}`);
+    setShowModal(true);
   };
 
   const handlePayment = () => {
     Keyboard.dismiss();
 
     if (!paymentType || !amountValue) {
-      Alert.alert("Error", "Please fill in both Payment Type and Amount.");
+      setModalMessage("Please fill in both Payment Type and Amount.");
+      setShowModal(true);
       return;
     }
 
     const enteredAmount = parseFloat(amountValue);
 
     if (enteredAmount % 10 === 0) {
-      Alert.alert("Payment Successful", `Paid ₹${enteredAmount}\nNo round-off applied.`);
+      setModalMessage(`Paid ₹${enteredAmount}\nNo round-off applied.`);
+      setShowModal(true);
       return;
     }
 
-    let roundedAmount = Math.ceil(enteredAmount / 100) * 100; 
+    let roundedAmount = Math.ceil(enteredAmount / 100) * 100;
     let roundUpValue = roundedAmount - enteredAmount;
 
     if (roundUpValue > enteredAmount * 0.25) {
@@ -89,22 +93,21 @@ export default function PaymentScreen() {
     setCommentValue("");
     setUpiId("");
 
-    Alert.alert(
-      "Payment Successful",
+    setModalMessage(
       `Paid ₹${enteredAmount}\nRounded up to ₹${roundedAmount}\n₹${roundUpValue} saved!`
     );
+    setShowModal(true);
   };
 
   return (
     <Box className="flex-1 bg-background p-6">
       <Card className="flex-1 p-4 rounded-lg shadow-lg bg-background relative">
-       
         <Box className="absolute top-8 right-4">
           <Button
             onPress={() => router.push("/transactions")}
             className="bg-transparent"
           >
-           <History color="#9BA1A6" size={26} />
+            <History color="#9BA1A6" size={26} />
           </Button>
         </Box>
 
@@ -181,6 +184,22 @@ export default function PaymentScreen() {
           >
             <ButtonText className="text-background text-md">Cancel</ButtonText>
           </Button>
+        </Box>
+      </Modal>
+
+      {/* Modal for Payment Success */}
+      <Modal visible={showModal} animationType="fade" transparent>
+        <Box className="flex-1 items-center justify-center bg-black bg-opacity-50">
+          <Card className="p-6 rounded-lg bg-white w-4/5">
+            <Text className="text-primary text-lg font-bold mb-4">Payment Status</Text>
+            <Text className="text-gray-700 mb-6">{modalMessage}</Text>
+            <Button
+              onPress={() => setShowModal(false)}
+              className="bg-primary px-6 py-3 rounded-lg"
+            >
+              <ButtonText className="text-background">Close</ButtonText>
+            </Button>
+          </Card>
         </Box>
       </Modal>
     </Box>

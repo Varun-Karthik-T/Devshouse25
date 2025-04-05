@@ -55,6 +55,7 @@ export const dummy = [
       },
       {
         transactionId: "txn002",
+        to:"binary potatoes",
         date: "2025-03-25T15:40:00.000Z",
         category: "Shopping",
         amount: 2000,
@@ -62,6 +63,7 @@ export const dummy = [
       },
       {
         transactionId: "txn003",
+        to:"binary potatoes",
         date: "2025-03-26T09:20:00.000Z",
         category: "Groceries",
         amount: 1600,
@@ -69,6 +71,7 @@ export const dummy = [
       },
       {
         transactionId: "txn004",
+        to:"binary potatoes",
         date: "2025-03-27T18:00:00.000Z",
         category: "Dining",
         amount: 1200,
@@ -76,6 +79,7 @@ export const dummy = [
       },
       {
         transactionId: "txn005",
+        to:"binary potatoes",
         date: "2025-03-28T10:00:00.000Z",
         category: "Entertainment",
         amount: 950,
