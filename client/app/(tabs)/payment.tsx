@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Keyboard, Alert, Modal } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
@@ -28,20 +29,23 @@ export default function PaymentScreen() {
     (async () => {
       const { status } = await BarCodeScanner.requestPermissionsAsync();
       setPermission(status === "granted");
+      if (status !== "granted") {
+        Alert.alert("Permission Denied", "Camera permission is required to scan QR codes.");
+      }
     })();
   }, []);
+
+  // Automatically open the scanner when the Payment tab is focused
+  useFocusEffect(
+    React.useCallback(() => {
+      setScannerVisible(true); // Open scanner when the screen is focused
+    }, [])
+  );
 
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     setUpiId(data); // Autofill the UPI ID field
     setScannerVisible(false);
-    Alert.alert(
-      "Paying to",
-      `UPI ID: ${data}`,
-      [
-        { text: "Cancel", onPress: () => console.log("Cancelled"), style: "cancel" },
-        { text: "OK", onPress: () => console.log("Confirmed") },
-      ]
-    );
+    Alert.alert("Paying to", `UPI ID: ${data}`);
   };
 
   const handlePayment = () => {
@@ -61,6 +65,7 @@ export default function PaymentScreen() {
       date: new Date().toISOString(),
       category: paymentType,
       amount: enteredAmount,
+      upiId: upiId || "N/A", // Include the scanned UPI ID
       notes: commentValue || "",
     };
 
