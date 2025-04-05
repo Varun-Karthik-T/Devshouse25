@@ -3,17 +3,27 @@ import { useState } from "react";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { Divider } from "@/components/ui/divider";
-import { Badge, BadgeText } from "@/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Dropdown from "@/components/Dropdown";
 import { dummy, months } from "@/constants/dummyData";
 import { router } from "expo-router";
+import { HStack } from "@/components/ui/hstack";
+import { Icon, ChevronRightIcon } from "@/components/ui/icon";
 
 const Analyze = () => {
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedMonthId, setSelectedMonthId] = useState<number | null>(null);
+  const [selectedMonthData, setSelectedMonthData] = useState<typeof dummy[0] | null>(null);
 
-  const selectedMonthData = dummy.find((data) => data.month === selectedMonth);
+  const handleMonthChange = (value: string) => {
+    const monthId = Number(value);
+    setSelectedMonthId(monthId);
+    console.log(monthId)
+    const monthData = dummy.find((data) => data.month_id === monthId);
+    console.log(monthData)
+    setSelectedMonthData(monthData || null);
+  };
 
   return (
     <ScrollView
@@ -47,11 +57,12 @@ const Analyze = () => {
             ];
             return {
               label: `${monthNames[month.month - 1]}, ${month.year}`,
-              value: month.month.toString(),
+              value: month.month_id.toString(),
             };
           })}
           placeholder="Select a month"
-          onValueChange={(value) => setSelectedMonth(Number(value))}
+          onValueChange={handleMonthChange}
+          value={selectedMonthId?.toString() || undefined}
           className="flex-1 ml-2"
         />
       </View>
@@ -145,31 +156,63 @@ const Analyze = () => {
               </View>
             </Badge>
           </Box>
-          <Box className="bg-secondary flex flex-col w-full items-center rounded-lg p-4">
-            <Text>Top expenses this month: </Text>
-            <View className="flex flex-col gap-2 mt-2">
+          <Box className=" flex flex-col w-full rounded-lg p-4">
+            <HStack className="justify-between items-center mb-4">
+              <Text bold size="2xl" className="text-left flex-1 text-primary">
+                Top expenses this month:
+              </Text>
+              <HStack className=" mt-4 flex-1 items-center justify-end">
+                <Text
+                  className="text-primary"
+                  onPress={() =>
+                    router.push({
+                      pathname: "/transactions-history",
+                      params: { month_id: selectedMonthData._id.$oid },
+                    })
+                  }
+                >
+                  Show all
+                </Text>
+                <Icon
+                  as={ChevronRightIcon}
+                  size="md"
+                  className="text-primary ml-1"
+                />
+              </HStack>
+            </HStack>
+            <View className="flex flex-col gap-4 mt-4">
               {selectedMonthData.transactions
                 .sort((a, b) => b.amount - a.amount)
                 .slice(0, 3)
                 .map((transaction, index) => (
-                  <Badge key={index} size="sm" variant="solid" action="success">
-                    <BadgeText className="text-white">
-                      {transaction.category}: ₹{transaction.amount}
-                    </BadgeText>
-                  </Badge>
+                  <Box
+                    key={index}
+                    className="bg-primary p-4 rounded-lg flex flex-col gap-2"
+                  >
+                    <HStack className="justify-between items-center">
+                      <Text
+                        bold
+                        size="lg"
+                        className="text-black"
+                        style={{ textTransform: "capitalize" }}
+                      >
+                        {transaction.category}
+                      </Text>
+                      <Text bold size="lg" className="text-black">
+                        ₹{transaction.amount}
+                      </Text>
+                    </HStack>
+                    <Text className="text-secondary text-sm">
+                      {new Date(transaction.date).toLocaleDateString()}
+                    </Text>
+                    {transaction.notes && (
+                      <Text className="text-secondary text-sm italic">
+                        "{transaction.notes}"
+                      </Text>
+                    )}
+                  </Box>
                 ))}
             </View>
-            <Text
-              onPress={() =>
-                router.push({
-                  pathname: "/transactions-history",
-                  params: { month_id: selectedMonthData._id.$oid },
-                })
-              }
-              className="text-primary mt-4 underline"
-            >
-              Show all transactions
-            </Text>
           </Box>
           <Text>AI Summary: {selectedMonthData.aiSummary}</Text>
         </>
