@@ -33,13 +33,13 @@ export default function PaymentScreen() {
         This is the payment screen
       </Text>
 
-      <VStack className="w-full max-w-[300px] rounded-md border border-background-200 p-4">
+      <VStack space="xl"   className="w-full max-w-[300px] rounded-md border  p-4">
         <FormControl isInvalid={isInvalid} size="md">
           <FormControlLabel>
-            <FormControlLabelText>Password</FormControlLabelText>
+            <FormControlLabelText className="text-primary">Password</FormControlLabelText>
           </FormControlLabel>
 
-          <Input className="my-1">
+          <Input variant="outline" size="lg" className="w-full border border-accent rounded-lg">
             <InputField
               type="password"
               placeholder="Enter password"

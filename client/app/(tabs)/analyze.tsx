@@ -15,7 +15,7 @@ const Analyze = () => {
   const selectedWeekData = dummy.find((data) => data.week_id === selectedWeek);
 
   return (
-    <View className="flex-1 items-center gap-4 p-4">
+    <View className="flex-1 items-center gap-4 p-4 text-primary bg-background">
       <Heading bold size="2xl">
         Your week in focus
       </Heading>
