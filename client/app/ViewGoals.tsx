@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect  } from "react";
 import axios from "axios";
-import { ScrollView, Image } from "react-native";
+import { ScrollView, Image , Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { VStack } from "@/components/ui/vstack";
 import { HStack } from "@/components/ui/hstack";
@@ -14,16 +14,40 @@ import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 const ViewGoals = () => {
   const [walletAmount] = useState(10000); // Hardcoded wallet balance
   const [distributedGoals, setDistributedGoals] = useState<
-    { targetName: string; goalCost: number; goalMonths: number; monthlyContribution: number; savings: number; image?: string }[]
+    { goal_id: string; targetName: string; goalCost: number; goalMonths: number; monthlyContribution: number; savings: number; image?: string }[]
   >([]); // Goals after distribution
   const [goals, setGoals] = useState<
-    { targetName: string; goalCost: number; goalMonths: number; savings: number; monthlyContribution: number; image?: string }[]
-  >([
-    // Example goals with targetName, goalCost, goalMonths, and savings
-    { targetName: "Car", goalCost: 11000, goalMonths: 11, savings: 0, monthlyContribution: 11000 / 11 },
-    { targetName: "Palace", goalCost: 12000, goalMonths: 12, savings: 0, monthlyContribution: 12000 / 12 },
-    { targetName: "Audi", goalCost: 22000, goalMonths: 2, savings: 0, monthlyContribution: 22000 / 2 },
-  ]);
+    { goal_id: string; targetName: string; goalCost: number; goalMonths: number; savings: number; monthlyContribution: number; image?: string }[]
+  >([]);
+
+  useEffect(() => {
+    const fetchGoalsFromDB = async () => {
+      try {
+        const response = await axios.get("http://192.168.134.213:8000/api/goals/user123");
+        const fetchedGoals = response.data.goals.map((goal: any) => ({
+          goal_id: goal.goal_id,
+          targetName: goal.goal_name,
+          goalCost: goal.goal_cost,
+          goalMonths: goal.total_months,
+          savings: goal.savings,
+          monthlyContribution: goal.monthly_requirement,
+        }));
+
+        const updatedGoals = await Promise.all(
+          fetchedGoals.map(async (goal) => {
+            const image = await fetchImage(goal.targetName); // Fetch image for the goal
+            return { ...goal, image }; // Add the image URL to the goal
+          })
+        );
+
+        setGoals(updatedGoals);
+      } catch (error) {
+        console.error("Error fetching goals from DB:", error);
+      }
+    };
+
+    fetchGoalsFromDB();
+  }, []);
 
   useEffect(() => {
     fetchImagesForGoals(); // Fetch images for goals
@@ -32,6 +56,24 @@ const ViewGoals = () => {
   useEffect(() => {
     distributeWallet(); // Recalculate distributedGoals whenever goals are updated
   }, [goals]); // Add goals as a dependency
+
+  useEffect(() => {
+    checkForDisintegration(); // Check for disintegration after wallet distribution
+  }, [distributedGoals]);
+
+  // Function to check for disintegration and alert the user
+  const checkForDisintegration = () => {
+    distributedGoals.forEach((goal) => {
+      if (goal.savings < goal.monthlyContribution * 0.5) {
+        // If savings are less than 50% of the required monthly contribution
+        Alert.alert(
+          "Save Now or Forget It Forever!",
+          `Your goal "${goal.targetName}" is falling apart. Without more savings, it might never be achieved. Act now before it's too late!`,
+          [{ text: "OK" }]
+        );
+      }
+    });
+  };
 
   // Function to fetch images for each goal based on the targetName
   const fetchImagesForGoals = async () => {
@@ -50,7 +92,6 @@ const ViewGoals = () => {
   // Function to fetch a single image from Unsplash API
   const fetchImage = async (query: string) => {
     try {
-      console.log("Fetching image for:", process.env.EXPO_PUBLIC_UNSPLASH_ACCESS_KEY); // Log the query being fetched
       const response = await axios.get("https://api.unsplash.com/search/photos", {
         params: {
           query,
@@ -100,6 +141,10 @@ const ViewGoals = () => {
       }));
 
       setDistributedGoals(finalGoals);
+      finalGoals.forEach((goal) => {
+        updateSavingsInBackend(goal.goal_id, goal.savings);
+      });
+      
       return;
     }
 
@@ -113,8 +158,26 @@ const ViewGoals = () => {
       }));
 
       setDistributedGoals(finalGoals);
+      finalGoals.forEach((goal) => {
+        updateSavingsInBackend(goal.goal_id, goal.savings);
+      });
     } else {
       setDistributedGoals(updatedGoals);
+      updatedGoals.forEach((goal) => {
+        updateSavingsInBackend(goal.goal_id, goal.savings);
+      });
+    }
+  };
+
+  const updateSavingsInBackend = async (goalId: string, savings: number) => {
+    try {
+      const response = await axios.patch("http://192.168.134.213:8000/api/goals/update-savings", {
+        goal_id: goalId,
+        savings: savings,
+      });
+      console.log(`Savings updated for goal ${goalId}:`, response.data);
+    } catch (error) {
+      console.error(`Error updating savings for goal ${goalId}:`, error);
     }
   };
 
@@ -136,6 +199,24 @@ const ViewGoals = () => {
     }
     return lines;
   };
+
+  const removeGoal = async (goalId: string, goalName: string) => {
+  try {
+    // Call the backend to delete the goal
+    await axios.delete(`http://192.168.134.213:8000/api/goals/${goalId}`);
+
+    // Remove the goal from the local state
+    const updatedGoals = goals.filter((goal) => goal.goal_id !== goalId);
+    setGoals(updatedGoals);
+
+    // Show a fun message
+    Alert.alert("Goodbye!", `Bye bye "${goalName}", you deserve a better owner!`);
+  } catch (error) {
+    console.error(`Error removing goal ${goalId}:`, error);
+    Alert.alert("Error", "Failed to remove the goal. Please try again.");
+  }
+};
+
 
   const renderDisintegration = (disintegrationPercentage: number) => {
     const numRows = 10; // Number of rows in the grid
@@ -229,6 +310,12 @@ const ViewGoals = () => {
           <Text className="text-accent text-md">
             {`Monthly Contribution: ${goal.monthlyContribution?.toFixed(2) || "0.00"}`}
           </Text>
+          <Button
+            onPress={() => removeGoal(goal.goal_id, goal.targetName)}
+            className="bg-red-500 mt-4"
+          >
+            <ButtonText className="text-white">Remove Goal</ButtonText>
+          </Button>
         </VStack>
         ))}
       </VStack>
