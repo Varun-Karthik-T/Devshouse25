@@ -5,24 +5,22 @@ import { Center } from "@/components/ui/center";
 import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Menu, MenuItem, MenuItemLabel } from "@/components/ui/menu";
-import {
-  Icon,
-  AddIcon,
-  GlobeIcon,
-  PlayIcon,
-  SettingsIcon,
-} from "@/components/ui/icon";
-
+import { Icon, GlobeIcon, PlayIcon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
 import React from "react";
+import { Keyboard } from "react-native"; 
 import { dummy } from "@/constants/dummyData";
+import { useRouter } from "expo-router";
+import { Alert } from "react-native";
 
 export default function PaymentScreen() {
   const [amountValue, setAmountValue] = React.useState("");
   const [commentValue, setCommentValue] = React.useState("");
   const [paymentType, setPaymentType] = React.useState("");
+  const router = useRouter();
 
   const handlePayment = () => {
+    Keyboard.dismiss(); 
     if (!paymentType || !amountValue) {
       console.error("Payment Type and Amount are required.");
       alert("Please fill in both Payment Type and Amount.");
@@ -45,6 +43,8 @@ export default function PaymentScreen() {
     setPaymentType("");
     setAmountValue("");
     setCommentValue("");
+
+    Alert.alert("Payment Successful", "Your payment has been made successfully.");
   };
 
   return (
@@ -54,7 +54,6 @@ export default function PaymentScreen() {
           <Menu
             placement="bottom"
             offset={5}
-            // disabledKeys={["Settings"]}
             trigger={({ ...triggerProps }) => {
               return (
                 <Button {...triggerProps} className="bg-primary">
@@ -63,8 +62,11 @@ export default function PaymentScreen() {
               );
             }}
           >
-        
-            <MenuItem key="Transactions" textValue="Transactions">
+            <MenuItem
+              key="Transactions"
+              textValue="Transactions"
+              onPress={() => router.push("/transactions")}
+            >
               <Icon as={GlobeIcon} size="sm" className="mr-2 text-primary" />
               <MenuItemLabel size="sm" className="text-primary">
                 Transactions
@@ -76,7 +78,6 @@ export default function PaymentScreen() {
                 Plugins
               </MenuItemLabel>
             </MenuItem>
-
           </Menu>
         </Box>
 
@@ -88,8 +89,10 @@ export default function PaymentScreen() {
               <InputField
                 placeholder="Payment Type"
                 value={paymentType}
-                onChangeText={setPaymentType}
-                className="placeholder:text-gray-400 text-gray-800"
+                onChangeText={(text) => setPaymentType(text)}
+                className={`placeholder:text-gray-400 ${
+                  paymentType ? "text-primary" : "text-gray-800"
+                }`}
               />
             </Input>
             <Input variant="outline" size="lg" className="w-full border border-accent rounded-lg">
@@ -97,16 +100,20 @@ export default function PaymentScreen() {
                 placeholder="Amount"
                 keyboardType="numeric"
                 value={amountValue}
-                onChangeText={setAmountValue}
-                className="placeholder:text-gray-400 text-gray-800"
+                onChangeText={(text) => setAmountValue(text)}
+                className={`placeholder:text-gray-400 ${
+                  amountValue ? "text-primary" : "text-gray-800"
+                }`}
               />
             </Input>
             <Input variant="outline" size="lg" className="w-full border border-accent rounded-lg">
               <InputField
                 placeholder="Comments"
                 value={commentValue}
-                onChangeText={setCommentValue}
-                className="placeholder:text-gray-400 text-gray-800"
+                onChangeText={(text) => setCommentValue(text)}
+                className={`placeholder:text-gray-400 ${
+                  commentValue ? "text-primary" : "text-gray-800"
+                }`}
               />
             </Input>
             <Button
