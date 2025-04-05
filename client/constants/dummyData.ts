@@ -9,6 +9,7 @@ export const dummy = [
     totalSavings: 20000,
     totalSpent: 8750,
     totalInvestments: 7000,
+    balance: 20000,
 
     goals: [
       {
