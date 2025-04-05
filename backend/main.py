@@ -1,11 +1,17 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 from datetime import datetime, timedelta
 from stock import predict_multiple_stocks, fetch_current_stock_values
 from db import db, ping_database
+from chatbot import chat_prompt
+from services import get_latest_month_report
 
 app = FastAPI()
 
 collection = db["stock_predictions"]
+
+class ChatRequest(BaseModel):
+    user_prompt: str
 
 @app.on_event("startup")
 async def startup_event():
@@ -69,3 +75,23 @@ async def get_predictions():
             for symbol in symbols
         }
     }
+    return {"cached": False, "predictions": all_predictions}
+
+@app.post("/chat/{userId}")
+async def chat_with_bot(userId: str, request: ChatRequest):
+    try:
+        # Await the chat_prompt function
+        response = await chat_prompt(request.user_prompt, userId)
+        return {"response": response}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Chatbot error: {e}")
+
+@app.get("/reports/latest/{userId}")
+async def get_latest_report(userId: str):
+    try:
+        latest_report = await get_latest_month_report(userId)
+        return {"latest_report": latest_report}
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching latest report: {e}")

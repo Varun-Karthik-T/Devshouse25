@@ -20,9 +20,7 @@ const Analyze = () => {
   const handleMonthChange = (value: string) => {
     const monthId = Number(value);
     setSelectedMonthId(monthId);
-    console.log(monthId);
     const monthData = dummy.find((data) => data.month_id === monthId);
-    console.log(monthData);
     setSelectedMonthData(monthData || null);
   };
 
