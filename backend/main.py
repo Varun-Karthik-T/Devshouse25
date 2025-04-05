@@ -3,10 +3,24 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 from stock import predict_multiple_stocks, fetch_current_stock_values
 from db import db, ping_database
+from goals import router as goals_router
+from fastapi.middleware.cors import CORSMiddleware
 from chatbot import chat_prompt
 from services import get_latest_month_report
 
 app = FastAPI()
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow all origins for testing; restrict in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include the goals router
+app.include_router(goals_router, prefix="/api", tags=["goals"])
 
 collection = db["stock_predictions"]
 

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { Alert } from "react-native"; // Import Alert
 import { useRouter } from "expo-router";
 import { Box } from "@/components/ui/box";
 import { Text } from "@/components/ui/text";
@@ -6,113 +7,69 @@ import { Input, InputField } from "@/components/ui/input";
 import { Button, ButtonText } from "@/components/ui/button";
 import { VStack } from "@/components/ui/vstack";
 import { Center } from "@/components/ui/center";
+import Axios from "axios";
 
 export default function GoalScreen() {
   const router = useRouter();
 
-  const initialWallet = 5000; // Simulate fetching wallet money from the database
-  const initialGoals = [
-    {
-      targetName: "Buy a Car",
-      goalCost: 120000,
-      totalMonths: 12,
-      monthlyContribution: 10000,
-      savings: 0,
-      missedMonths: 0, // Track missed months
-    },
-    {
-      targetName: "Vacation",
-      goalCost: 60000,
-      totalMonths: 6,
-      monthlyContribution: 10000,
-      savings: 0,
-      missedMonths: 0, // Track missed months
-    },
-  ];
-
-  const [walletAmount, setWalletAmount] = useState(initialWallet); // Wallet money
-  const [goals, setGoals] = useState(initialGoals); // Goals array
+  const userId = "user123"; // Simulated user ID
   const [targetName, setTargetName] = useState(""); // Target name
   const [goalCost, setGoalCost] = useState<number | null>(null); // Goal cost
   const [totalMonths, setTotalMonths] = useState<number | null>(null); // Total months to achieve the goal
 
-  useEffect(() => {
-    redistributeWalletAmount();
-  }, []);
-
-  const calculateProgress = (goal: any) =>
-    goal.savings ? Math.min((goal.savings / goal.goalCost) * 100, 100) : 0;
-
-  const handleSetGoal = () => {
+  const handleSetGoal = async () => {
     if (targetName && goalCost && totalMonths) {
       const monthlyContribution = goalCost / totalMonths;
 
       const newGoal = {
-        targetName,
-        goalCost,
-        totalMonths,
-        monthlyContribution,
+        user_id: userId, // Include user ID
+        goal_name: targetName,
+        goal_cost: goalCost,
+        total_months: totalMonths,
+        monthly_requirement: monthlyContribution,
         savings: 0,
-        missedMonths: 0,
+        status: "notmet",
       };
 
-      setGoals((prevGoals) => [...prevGoals, newGoal]);
-      setTargetName("");
-      setGoalCost(null);
-      setTotalMonths(null);
+      console.log("New Goal Data:", newGoal); // Log the goal data
+      console.log("Backend URL: http://192.168.134.213:8000/api/goals"); // Corrected backend URL
 
-      // Redistribute wallet after adding a new goal
-      redistributeWalletAmount([...goals, newGoal]);
+      try {
+        // Send the goal to the backend
+        const response = await Axios.post("http://192.168.134.213:8000/api/goals", newGoal); // Corrected backend URL
+        console.log("Goal added successfully:", response.data);
+
+        // Show success alert
+        Alert.alert(
+          "Goal Submitted",
+          "Better start saving! See you at the month-end.",
+          [{ text: "OK" }]
+        );
+
+        // Reset input fields
+        setTargetName("");
+        setGoalCost(null);
+        setTotalMonths(null);
+      } catch (error: unknown) {
+        console.error("Error adding goal:", error); // Log the error
+        if (Axios.isAxiosError(error) && error.response) {
+          console.log("Response Data:", error.response.data); // Log response data if available
+          console.log("Response Status:", error.response.status); // Log response status
+          console.log("Response Headers:", error.response.headers); // Log response headers
+        } else if (Axios.isAxiosError(error) && error.request) {
+          console.log("Request Data:", error.request); // Log request data if no response
+        } else if (error instanceof Error) {
+          console.log("Error Message:", error.message); // Log general error message
+        }
+      }
+    } else {
+      console.error("Please fill in all fields before submitting.");
     }
   };
 
-  const redistributeWalletAmount = (updatedGoals = goals) => {
-    let remainingWallet = walletAmount; // Use a copy of the wallet amount
-
-    // Filter goals that still need savings
-    const goalsNeedingSavings = updatedGoals.filter(
-      (goal) => goal.savings < goal.goalCost
-    );
-
-    const redistributedGoals = updatedGoals.map((goal) => {
-      if (remainingWallet <= 0 || goal.savings >= goal.goalCost) {
-        return goal; // Skip if no wallet left or goal is already fulfilled
-      }
-
-      // Calculate the equal share for this goal
-      const equalShare = Math.min(
-        remainingWallet / goalsNeedingSavings.length,
-        goal.goalCost - goal.savings
-      );
-
-      // Deduct the distributed amount from the remaining wallet (local copy)
-      remainingWallet -= equalShare;
-
-      return {
-        ...goal,
-        savings: goal.savings + equalShare, // Update savings
-      };
-    });
-
-    // Update the state with the redistributed goals
-    setGoals(redistributedGoals);
-  };
-
   const handleViewGoals = () => {
-    // Navigate to the ViewGoals page and pass data via query parameters
-    router.push({
-      pathname: "/ViewGoals",
-      //remove topbar
-      //remove bottom tab bar
-
-
-
-      params: {
-        goals: JSON.stringify(goals),
-        walletAmount: walletAmount.toString(),
-        initialWallet: initialWallet.toString(),
-      },
-    });
+    // Navigate to the View Goals page
+    router.push("/ViewGoals");
   };
 
   return (
