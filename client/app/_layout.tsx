@@ -1,3 +1,4 @@
+import 'expo-dev-client';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import "@/global.css";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
@@ -10,6 +11,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { dummy } from "@/constants/dummyData";
+import { ChatFab } from '@/components/ChatFab';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -69,6 +71,7 @@ export default function RootLayout() {
           />
         </Stack>
         <StatusBar style="auto" />
+        {/* <ChatFab /> */}
       </ThemeProvider></GluestackUIProvider>
   );
 }
