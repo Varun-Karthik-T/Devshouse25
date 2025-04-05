@@ -12,10 +12,19 @@ const getPrediction = async () => {
         const response = await api.get('/predict')
         console.log(response.data.predictions)
         return response.data;
-        
     } catch (error) {
         console.error('Error fetching prediction:', error);
     }
 };
 
-export { getPrediction };
+const getAllUserReports = async (userId: string) => {
+    try {
+        const response = await api.get(`/reports/all/${userId}`);
+        console.log(response.data.reports);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching all user reports:', error);
+    }
+};
+
+export { getPrediction, getAllUserReports };
