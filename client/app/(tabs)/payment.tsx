@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Keyboard, Alert, Modal } from "react-native";
 import { BarCodeScanner } from "expo-barcode-scanner";
 import { useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
 
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
@@ -34,6 +35,12 @@ export default function PaymentScreen() {
     })();
   }, []);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      setScannerVisible(true);
+    }, [])
+  );
+
   const handleBarCodeScanned = ({ data }: { data: string }) => {
     setUpiId(data); 
     setScannerVisible(false);
@@ -49,15 +56,26 @@ export default function PaymentScreen() {
     }
 
     const enteredAmount = parseFloat(amountValue);
-    const roundedAmount = Math.ceil(enteredAmount / 10) * 10;
-    const roundUpValue = roundedAmount - enteredAmount;
+
+    if (enteredAmount % 10 === 0) {
+      Alert.alert("Payment Successful", `Paid ₹${enteredAmount}\nNo round-off applied.`);
+      return;
+    }
+
+    let roundedAmount = Math.ceil(enteredAmount / 100) * 100; 
+    let roundUpValue = roundedAmount - enteredAmount;
+
+    if (roundUpValue > enteredAmount * 0.25) {
+      roundedAmount = Math.ceil(enteredAmount / 10) * 10;
+      roundUpValue = roundedAmount - enteredAmount;
+    }
 
     const newTransaction = {
       transactionId: `txn${dummy[0].transactions.length + 1}`,
       date: new Date().toISOString(),
       category: paymentType,
       amount: enteredAmount,
-      upiId: upiId || "N/A", 
+      upiId: upiId || "N/A",
       notes: commentValue || "",
     };
 
@@ -73,7 +91,7 @@ export default function PaymentScreen() {
 
     Alert.alert(
       "Payment Successful",
-      `Paid ₹${enteredAmount}\n₹${roundUpValue} saved!\nUPI: ${upiId || "N/A"}`
+      `Paid ₹${enteredAmount}\nRounded up to ₹${roundedAmount}\n₹${roundUpValue} saved!`
     );
   };
 
