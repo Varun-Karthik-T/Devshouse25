@@ -108,7 +108,7 @@ const actionsheetItemStyle = tva({
 });
 
 const actionsheetItemTextStyle = tva({
-  base: 'text-typography-700 font-normal font-body tracking-md text-left mx-2',
+  base: 'text-typography-700 text-accent font-normal font-body tracking-md text-left mx-2',
   variants: {
     isTruncated: {
       true: '',

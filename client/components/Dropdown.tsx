@@ -21,16 +21,16 @@ interface DropdownProps {
 
 const Dropdown = ({ options, placeholder, onValueChange, className }: DropdownProps) => {
   return (
-    <Select onValueChange={onValueChange} className={className}>
-      <SelectTrigger variant="outline" size="md">
-        <SelectInput placeholder={placeholder} />
-        <SelectIcon className="mr-3" as={ChevronDownIcon} />
+    <Select onValueChange={onValueChange} className={`${className}`}>
+      <SelectTrigger variant="outline" size="md" className="border-accent flex justify-between">
+        <SelectInput placeholder={placeholder} className="placeholder:text-accent text-accent py-2" />
+        <SelectIcon className="mr-3 text-accent" as={ChevronDownIcon} />
       </SelectTrigger>
       <SelectPortal>
-        <SelectBackdrop />
-        <SelectContent>
+        <SelectBackdrop className="bg-secondary" />
+        <SelectContent className="bg-black">
           <SelectDragIndicatorWrapper>
-            <SelectDragIndicator />
+            <SelectDragIndicator className="bg-white" />
           </SelectDragIndicatorWrapper>
           {options.map((option) => (
             <SelectItem key={option.value} label={option.label} value={option.value} />

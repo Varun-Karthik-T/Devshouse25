@@ -9,9 +9,14 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { dummy } from "@/constants/dummyData";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+const monthNames = [
+  "January", "February", "March", "April", "May", "June", 
+  "July", "August", "September", "October", "November", "December"
+];
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -32,8 +37,36 @@ export default function RootLayout() {
   return (
     <GluestackUIProvider mode="dark"><ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
+          <Stack.Screen 
+            name="(tabs)" 
+            options={{ 
+              headerShown: false
+            }} 
+          />
+          <Stack.Screen 
+            name="+not-found" 
+            options={{ 
+              headerShown: true, 
+              title: "Page Not Found" 
+            }} 
+          />
+          <Stack.Screen 
+            name="transactions-history" 
+            options={({ route }: { route: { params?: { month_id?: string } } }) => {
+              const monthData = dummy.find(
+                (data) => data._id.$oid === route.params?.month_id
+              );
+              const title = monthData
+                ? `Transactions for ${monthNames[monthData.month - 1]} ${monthData.year}`
+                : "Transactions";
+              return { 
+                headerShown: true, 
+                title,
+                headerTintColor: "#93bee2",
+                headerTitleStyle: { color: "#93bee2" }
+              };
+            }} 
+          />
         </Stack>
         <StatusBar style="auto" />
       </ThemeProvider></GluestackUIProvider>
