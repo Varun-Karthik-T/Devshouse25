@@ -5,7 +5,7 @@ from stock import predict_multiple_stocks, fetch_current_stock_values
 from db import db, ping_database
 from goals import router as goals_router
 from fastapi.middleware.cors import CORSMiddleware
-from chatbot import chat_prompt
+from chatbot import chat_prompt, classification_prompt
 from services import *
 from transactions import router as transactions_router  
 
@@ -27,6 +27,9 @@ collection = db["stock_predictions"]
 
 class ChatRequest(BaseModel):
     user_prompt: str
+
+class ClassificationRequest(BaseModel):
+    transactions: list
 
 @app.on_event("startup")
 async def startup_event():
@@ -100,6 +103,18 @@ async def chat_with_bot(userId: str, request: ChatRequest):
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail=f"Chatbot error: {e}")
+
+@app.post("/classify-transactions")
+async def classify_transactions(request: ClassificationRequest):
+    """
+    Endpoint to classify transactions as essential payments or impulsive spending.
+    """
+    try:
+        classified_data = await classification_prompt(request.transactions)
+        return {"classified_data": classified_data}
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Error classifying transactions: {e}")
 
 @app.get("/reports/latest/{userId}")
 async def get_latest_report(userId: str):

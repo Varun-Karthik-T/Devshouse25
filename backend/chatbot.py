@@ -86,3 +86,42 @@ async def chat_prompt(user_prompt, userId):
         return {"error": "Server disconnected without sending a response."}
     
     return final_response
+
+async def classification_prompt(transactions):
+    """
+    Classifies transactions as essential payments or impulsive spending.
+
+    Args:
+        transactions (list): A list of transaction details. Each transaction should be a dictionary with keys like 'description', 'amount', etc.
+
+    Returns:
+        dict: A dictionary with two keys: 'essential_payments' and 'impulsive_spending', each containing a list of classified transactions.
+    """
+    system_instruction = """
+    You are a financial assistant that classifies transactions into two categories:
+    1) Essential Payments: Necessary expenses like rent, utilities, groceries, etc.
+    2) Impulsive Spending: Non-essential expenses like luxury items, entertainment, or guilty pleasures.
+
+    Classify the given transactions into these two categories and return the result as a JSON object with two keys:
+    - "essential_payments": A list of transactions classified as essential payments.
+    - "impulsive_spending": A list of transactions classified as impulsive spending.
+    """
+    
+    prompt = f"Classify the following transactions:\n{json.dumps(transactions, indent=2)}"
+    
+    try:
+        classification_response = call_gemini_api(system_instruction, prompt)
+        print("Raw classification response:", classification_response)
+        
+        stripped_response = classification_response.strip().lstrip("```json").rstrip("```").strip()
+        print("Stripped response:", stripped_response)
+        
+        classified_data = json.loads(stripped_response)
+        print("Classified data:", classified_data)
+        
+        return classified_data
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Error parsing classification response: {e}")
+    except Exception as e:
+        print(f"Error during classification API call: {e}")
+        return {"error": "Server disconnected without sending a response."}
