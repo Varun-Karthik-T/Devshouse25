@@ -18,10 +18,6 @@ const TransactionsHistory = () => {
 
   return (
     <ScrollView className="p-4">
-      <Text className="text-primary"> Month ID: {month_id} </Text>
-      <Text bold size="2xl" className="text-primary mb-4">
-        Transactions for {monthNames[(selectedMonthData?.month ?? 1) - 1]} {selectedMonthData?.year ?? "Unknown Year"}
-      </Text>
       {selectedMonthData?.transactions.map((transaction) => (
         <Box
           key={transaction.transactionId}
