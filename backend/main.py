@@ -7,20 +7,21 @@ from goals import router as goals_router
 from fastapi.middleware.cors import CORSMiddleware
 from chatbot import chat_prompt
 from services import *
+from transactions import router as transactions_router  
 
 app = FastAPI()
 
-# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for testing; restrict in production
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Include the goals router
 app.include_router(goals_router, prefix="/api", tags=["goals"])
+
+app.include_router(transactions_router, prefix="/api", tags=["transactions"])
 
 collection = db["stock_predictions"]
 
