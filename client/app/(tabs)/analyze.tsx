@@ -1,5 +1,5 @@
 import { View, ScrollView, Animated } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Text } from "@/components/ui/text";
 import { Heading } from "@/components/ui/heading";
 import { Divider } from "@/components/ui/divider";
@@ -7,20 +7,46 @@ import { Badge } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import Dropdown from "@/components/Dropdown";
-import { dummy, months } from "@/constants/dummyData";
 import { router } from "expo-router";
 import { HStack } from "@/components/ui/hstack";
 import { Icon, ChevronRightIcon } from "@/components/ui/icon";
+import { getAllUserReports } from "@/api";
 
 const Analyze = () => {
   const [selectedMonthId, setSelectedMonthId] = useState<number | null>(null);
-  const [selectedMonthData, setSelectedMonthData] = useState<typeof dummy[0] | null>(null);
+  const [selectedMonthData, setSelectedMonthData] = useState<any | null>(null);
+  const [userReports, setUserReports] = useState<any[]>([]);
   const scrollY = new Animated.Value(0);
+
+  useEffect(() => {
+    const fetchUserReports = async () => {
+      try {
+        const userId = "user123";
+        const response = await getAllUserReports(userId);
+        const sortedReports = (response.reports || []).sort((a : any, b : any) => {
+          if (b.year === a.year) {
+            return b.month - a.month;
+          }
+          return b.year - a.year;
+        });
+        setUserReports(sortedReports);
+
+        if (sortedReports.length > 0) {
+          setSelectedMonthId(sortedReports[0].month_id);
+          setSelectedMonthData(sortedReports[0]);
+        }
+      } catch (error) {
+        console.error("Error fetching user reports:", error);
+      }
+    };
+
+    fetchUserReports();
+  }, []);
 
   const handleMonthChange = (value: string) => {
     const monthId = Number(value);
     setSelectedMonthId(monthId);
-    const monthData = dummy.find((data) => data.month_id === monthId);
+    const monthData = userReports.find((report) => report.month_id === monthId);
     setSelectedMonthData(monthData || null);
   };
 
@@ -44,24 +70,12 @@ const Analyze = () => {
           Your month in focus
         </Heading>
         <Dropdown
-          options={months.map((month) => {
-            const monthNames = [
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ];
+          options={userReports.map((report) => {
+            const date = new Date(report.year, report.month - 1);
+            const monthName = date.toLocaleString("default", { month: "long" });
             return {
-              label: `${monthNames[month.month - 1]}, ${month.year}`,
-              value: month.month_id.toString(),
+              label: `${monthName}, ${report.year}`,
+              value: report.month_id.toString(),
             };
           })}
           placeholder="Select a month"
@@ -223,9 +237,9 @@ const Analyze = () => {
               </HStack>
               <View className="flex flex-col gap-4 mt-4">
                 {selectedMonthData.transactions
-                  .sort((a, b) => b.amount - a.amount)
+                  .sort((a : any, b : any) => b.amount - a.amount)
                   .slice(0, 3)
-                  .map((transaction, index) => (
+                  .map((transaction : any, index : any) => (
                     <Box
                       key={index}
                       className="bg-primary p-4 rounded-lg flex flex-col gap-2"
@@ -278,7 +292,7 @@ const Analyze = () => {
               <Text bold size="2xl" className="text-primary mb-4">
                 Goal Progress This Month
               </Text>
-              {selectedMonthData.goals.map((goal) => (
+              {selectedMonthData.goals.map((goal : any) => (
                 <Box
                   key={goal.goal_id}
                   className="bg-primary p-4 rounded-lg flex flex-col gap-2"
