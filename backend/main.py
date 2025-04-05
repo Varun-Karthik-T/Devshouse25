@@ -14,7 +14,6 @@ class ChatRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    # Ensure the collection exists and ping the database
     try:
         await ping_database()
         collections = await db.list_collection_names()
@@ -39,7 +38,6 @@ async def get_predictions():
     symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "NVDA"]
     cutoff_time = datetime.utcnow() - timedelta(hours=12)
 
-    # Check if predictions for all symbols are cached
     cached_predictions_cursor = collection.find({"predicted_on": {"$gte": cutoff_time}})
     cached_predictions = await cached_predictions_cursor.to_list(length=None)
     cached_symbols = {doc["symbol"] for doc in cached_predictions}
@@ -47,18 +45,14 @@ async def get_predictions():
     if len(cached_symbols) == len(symbols):
         return {"cached": True, "predictions": {doc["symbol"]: doc["predictions"] for doc in cached_predictions}}
 
-    # Generate predictions for missing symbols
     missing_symbols = [symbol for symbol in symbols if symbol not in cached_symbols]
     new_predictions = predict_multiple_stocks(missing_symbols)
 
-    # Update the database with new predictions
     for symbol, predictions in new_predictions.items():
-    # Convert integer keys in predictions to strings
         predictions_with_string_keys = {str(key): value for key, value in predictions.items()}
     
         await collection.update_one({"symbol": symbol},{"$set": {"predicted_on": datetime.utcnow(),"predictions": predictions_with_string_keys}},upsert=True)
 
-    # Combine cached and new predictions
     all_predictions = {doc["symbol"]: doc["predictions"] for doc in cached_predictions}
     all_predictions.update(new_predictions)
 
