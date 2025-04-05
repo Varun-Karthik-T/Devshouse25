@@ -10,6 +10,7 @@ import { Button, ButtonText } from "@/components/ui/button";
 import { Center } from "@/components/ui/center";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
+
 const ViewGoals = () => {
   const [walletAmount] = useState(10000); // Hardcoded wallet balance
   const [distributedGoals, setDistributedGoals] = useState<
@@ -49,17 +50,18 @@ const ViewGoals = () => {
   // Function to fetch a single image from Unsplash API
   const fetchImage = async (query: string) => {
     try {
+      console.log("Fetching image for:", process.env.EXPO_PUBLIC_UNSPLASH_ACCESS_KEY); // Log the query being fetched
       const response = await axios.get("https://api.unsplash.com/search/photos", {
         params: {
           query,
           per_page: 1,
-          w: 400, // Request smaller image width for faster loading
+          w: 400, 
         },
         headers: {
-          Authorization: `Client-ID 5HEBeegSExjl_ZuBqkoPDGe5k7LSEz1ft4ptDXPAXOQ`, // Your Unsplash Access Key
+          Authorization: `Client-ID ${process.env.EXPO_PUBLIC_UNSPLASH_ACCESS_KEY}`,
         },
       });
-      return response.data.results[0]?.urls?.small || null; // Return the image URL or null
+      return response.data.results[0]?.urls?.small || null; 
     } catch (error) {
       console.error(`Error fetching image for ${query}:`, error);
       return null;
