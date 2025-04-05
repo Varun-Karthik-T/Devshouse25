@@ -2,9 +2,8 @@ export const dummy = [
   {
     _id: { $oid: "661c9b1e8c8e2f3a7c123456" },
     userId: { $oid: "661c9b1e8c8e2f3a7c987654" },
-    week_id: 1,
-    weekStart: "2025-03-24T00:00:00.000Z",
-    weekEnd: "2025-03-30T23:59:59.000Z",
+    month: 3,
+    year: 2025,
     totalRoundUp: 320,
     totalSavings: 20000,
     totalSpent: 8750,
@@ -13,13 +12,13 @@ export const dummy = [
     goals: [
       {
         goalName: "Buy iPhone 15",
-        progressThisWeek: 10000,
+        progressThisMonth: 10000,
         progressPercentage: 83.3,
         status: "on track",
       },
       {
         goalName: "Vacation Trip",
-        progressThisWeek: 3000,
+        progressThisMonth: 3000,
         progressPercentage: 65.0,
         status: "behind",
       },
@@ -68,29 +67,29 @@ export const dummy = [
     ],
 
     aiSummary:
-      "You spent ₹8750 this week, with dining and shopping making up the largest portions. You're on track with your iPhone goal but need to boost savings for your vacation. Consider reducing discretionary spending next week to stay aligned with your targets.",
+      "You spent ₹8750 this month, with dining and shopping making up the largest portions. You're on track with your iPhone goal but need to boost savings for your vacation. Consider reducing discretionary spending next month to stay aligned with your targets.",
   },
 ];
 
-export const weeks = [
+export const months = [
   {
-    weekStart: "2025-03-03",
-    weekEnd: "2025-03-09",
-    week_id: 1,
+    month: 3,
+    year: 2025,
+    month_id: 1,
   },
   {
-    weekStart: "2025-03-10",
-    weekEnd: "2025-03-16",
-    week_id: 2,
+    month: 4,
+    year: 2025,
+    month_id: 2,
   },
   {
-    weekStart: "2025-03-17",
-    weekEnd: "2025-03-23",
-    week_id: 3,
+    month: 5,
+    year: 2025,
+    month_id: 3,
   },
   {
-    weekStart: "2025-03-24",
-    weekEnd: "2025-03-30",
-    week_id: 4,
+    month: 6, 
+    year: 2025,
+    month_id: 4,
   },
 ];
