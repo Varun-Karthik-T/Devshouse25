@@ -1,4 +1,4 @@
-# 💸 Devshouse25
+# 💸 PennyWise
 
 ## 🚨 Problem Statement
 
@@ -14,7 +14,7 @@ A system that turns small, everyday spending into smart savings could make all t
 
 ## ✅ Solution
 
-Devshouse25 is a smart financial assistant app that empowers users to take control of their money with:
+PennyWise is a smart financial assistant app that empowers users to take control of their money with:
 
 - 🎯 Goal-Centric Money Management  
 - 📆 Monthly Auto-Save Planner  
