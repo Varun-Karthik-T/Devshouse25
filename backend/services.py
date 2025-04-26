@@ -58,7 +58,6 @@ async def get_all_reports(user_id: str):
         
         reports = user_reports["reports"]
         
-        # Convert ObjectId to string if present
         for report in reports:
             if "_id" in report and isinstance(report["_id"], ObjectId):
                 report["_id"] = str(report["_id"])

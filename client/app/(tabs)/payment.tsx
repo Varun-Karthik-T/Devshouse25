@@ -94,7 +94,8 @@ export default function PaymentScreen() {
     setUpiId("");
 
     setModalMessage(
-      `Paid ₹${enteredAmount}\nRounded up to ₹${roundedAmount}\n₹${roundUpValue} saved!`
+      `Paid ₹${enteredAmount}\nRounded up to ₹${roundedAmount}\n` +
+      `**₹${roundUpValue} saved!**`
     );
     setShowModal(true);
   };
